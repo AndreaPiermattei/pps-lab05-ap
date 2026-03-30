@@ -18,6 +18,17 @@ case class CourseImpl(override val courseId: String,
 object Course:
   // Factory method for creating Course instances
   def apply(courseId: String, title: String, instructor: String, category: String): Course = CourseImpl(courseId,title,instructor, category)
+
+trait Enrollment:
+  def student: String
+  def courseId: String
+
+case class EnrollmentImpl(override val student: String,
+                          override val courseId: String) extends Enrollment
+
+object Enrollment:
+  def apply(student: String,courseId: String): Enrollment = new EnrollmentImpl(student,courseId)
+
 /**
  * Manages courses and student enrollments on an online learning platform.
  */
@@ -91,14 +102,16 @@ end OnlineCoursePlatform
 
 class OnlineCoursePlatformImpl extends OnlineCoursePlatform {
   private var courseList  =  Sequence[Course]()
+  private var enrollmentList = Sequence[Enrollment]()
   /**
    * Adds a new course to the platform's catalog.
    *
    * @param course The course to add.
    */
-  override def addCourse(course: Course): Unit = {
-    courseList = courseList.concat(Sequence(course))
-  }
+  override def addCourse(course: Course): Unit =
+    if (!courseList.contains(course)) then courseList = courseList.concat(Sequence(course))
+    else println("already present")
+
 
   /**
    * Finds courses belonging to a specific category.
@@ -122,7 +135,7 @@ class OnlineCoursePlatformImpl extends OnlineCoursePlatform {
    *
    * @param course The course to remove.
    */
-  override def removeCourse(course: Course): Unit = courseList = courseList.filter(c => c == course)
+  override def removeCourse(course: Course): Unit = courseList = courseList.filter(c => !(c == course))
 
   /**
    * Checks if a course with the given ID exists in the catalog.
@@ -140,23 +153,28 @@ class OnlineCoursePlatformImpl extends OnlineCoursePlatform {
    * @param courseId  The ID of the course to enroll in.
    *                  Fails silently if the course doesn't exist.
    */
-  override def enrollStudent(studentId: String, courseId: String): Unit = print("no")
-
+  override def enrollStudent(studentId: String, courseId: String): Unit =
+    if (!enrollmentList.contains(Enrollment(studentId, courseId))) then enrollmentList = enrollmentList.concat(Sequence(Enrollment(studentId, courseId)))
+    else println("already present")
   /**
    * Unenrolls a student from a specific course.
    *
    * @param studentId The ID of the student.
    * @param courseId  The ID of the course to unenroll from.
    */
-  override def unenrollStudent(studentId: String, courseId: String): Unit = print("no")
-
+  override def unenrollStudent(studentId: String, courseId: String): Unit =
+    enrollmentList = enrollmentList.filter(e => !(e == Enrollment(studentId,courseId)))
   /**
    * Retrieves all courses a specific student is enrolled in.
    *
    * @param studentId The ID of the student.
    * @return A sequence of courses the student is enrolled in.
    */
-  override def getStudentEnrollments(studentId: String): Sequence[Course] = Sequence()
+  override def getStudentEnrollments(studentId: String): Sequence[Course] =
+    enrollmentList.filter(e => e.student == studentId)
+      .map(e => courseList.find(t => t.courseId == e.courseId)
+        .orElse(Course("ERR","ERR","eRR","eRR")))
+
 
   /**
    * Checks if a student is enrolled in a specific course.
@@ -165,7 +183,8 @@ class OnlineCoursePlatformImpl extends OnlineCoursePlatform {
    * @param courseId  The ID of the course.
    * @return true if the student is enrolled, false otherwise.
    */
-  override def isStudentEnrolled(studentId: String, courseId: String): Boolean = false
+  override def isStudentEnrolled(studentId: String, courseId: String): Boolean = enrollmentList.contains(Enrollment(studentId,courseId))
+    
 }
 
 object OnlineCoursePlatform:
@@ -193,6 +212,7 @@ object OnlineCoursePlatform:
   val designCourse = Course("DESIGN01", "UI/UX Design Fundamentals", "Prof. Norman", "Design")
 
   println(s"Is SCALA01 available? ${platform.isCourseAvailable(scalaCourse.courseId)}") // false
+  platform.addCourse(scalaCourse)
   platform.addCourse(scalaCourse)
   println(s"Is SCALA01 available? ${platform.isCourseAvailable(scalaCourse.courseId)}") // true
   platform.addCourse(pythonCourse)
