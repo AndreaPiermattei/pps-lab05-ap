@@ -35,13 +35,13 @@ class Vector2dImpl(override val x: Double,override val y: Double) extends Vector
 
   override def magnitude: Double = sqrt(x*x + y*y)
 
-case class Vector2dImplWithCase(override val x: Double,override val y: Double) extends Vector2D :
+case class Vector2dImplWithCase(x: Double, y: Double) extends Vector2D:
 
-  override def +(other: Vector2D): Vector2D = Vector2dImpl(x+other.x,y+other.y)
+  override def +(other: Vector2D): Vector2D = Vector2dImplWithCase(x+other.x,y+other.y)
 
-  override def -(other: Vector2D): Vector2D = Vector2dImpl(x-other.x,y-other.y)
+  override def -(other: Vector2D): Vector2D = Vector2dImplWithCase(x-other.x,y-other.y)
 
-  override def *(scalar: Double): Vector2D = Vector2dImpl(x*scalar,y*scalar)
+  override def *(scalar: Double): Vector2D = Vector2dImplWithCase(x*scalar,y*scalar)
 
   override def dot(other: Vector2D): Double = (x*other.x) + (y*other.y)
 
@@ -50,7 +50,7 @@ case class Vector2dImplWithCase(override val x: Double,override val y: Double) e
 
 object Vector2D:
   // Factory method to create Vector2D instances
-  def apply(x: Double, y: Double): Vector2D = Vector2dImpl(x,y)
+  def apply(x: Double, y: Double): Vector2D = Vector2dImplWithCase(x,y)
 
   // Common vectors (optional but nice)
   val zero: Vector2D = apply(0.0, 0.0)
