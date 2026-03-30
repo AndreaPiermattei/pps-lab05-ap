@@ -173,7 +173,7 @@ class OnlineCoursePlatformImpl extends OnlineCoursePlatform {
   override def getStudentEnrollments(studentId: String): Sequence[Course] =
     enrollmentList.filter(e => e.student == studentId)
       .map(e => courseList.find(t => t.courseId == e.courseId)
-        .orElse(Course("ERR","ERR","eRR","eRR")))
+        .orElse(Course("ERR","ERR","eRR","eRR"))).filter(c=>c.courseId=="ERR")
 
 
   /**
@@ -184,7 +184,7 @@ class OnlineCoursePlatformImpl extends OnlineCoursePlatform {
    * @return true if the student is enrolled, false otherwise.
    */
   override def isStudentEnrolled(studentId: String, courseId: String): Boolean = enrollmentList.contains(Enrollment(studentId,courseId))
-    
+
 }
 
 object OnlineCoursePlatform:
