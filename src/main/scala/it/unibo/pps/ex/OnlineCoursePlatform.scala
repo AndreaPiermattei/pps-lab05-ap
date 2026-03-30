@@ -163,17 +163,20 @@ class OnlineCoursePlatformImpl extends OnlineCoursePlatform {
    * @param courseId  The ID of the course to unenroll from.
    */
   override def unenrollStudent(studentId: String, courseId: String): Unit =
-    enrollmentList = enrollmentList.filter(e => !(e == Enrollment(studentId,courseId)))
+    enrollmentList = enrollmentList.filter(e => e != Enrollment(studentId,courseId))
   /**
    * Retrieves all courses a specific student is enrolled in.
    *
    * @param studentId The ID of the student.
    * @return A sequence of courses the student is enrolled in.
    */
-  override def getStudentEnrollments(studentId: String): Sequence[Course] =
+  override def getStudentEnrollments(studentId: String): Sequence[Course] = {
+    //non ho capito l'alternativa per evitare la .orElse
     enrollmentList.filter(e => e.student == studentId)
       .map(e => courseList.find(t => t.courseId == e.courseId)
-        .orElse(Course("ERR","ERR","eRR","eRR"))).filter(c=>c.courseId=="ERR")
+        .orElse(Course("ERR","","","")))
+      .filter(c=>c.courseId!="ERR")
+  }
 
 
   /**
